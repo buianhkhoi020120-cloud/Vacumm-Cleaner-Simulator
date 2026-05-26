@@ -1,4 +1,3 @@
-import random
 import copy
 
 # ==========================================
@@ -21,18 +20,13 @@ class BFS_Vaccum_1:
         self.start_robot_pos = (0, 0)
         
         # Sinh sàn ngẫu nhiên tương tự bản mẫu trước
-        self.grid = []
-        for i in range(self.rows):
-            row = []
-            for j in range(self.cols):
-                if (i, j) == self.start_robot_pos:
-                    row.append(0)
-                else:
-                    # 65% ô sạch (0), 20% ô rác (1), 15% ô tường/vật cản (3)
-                    cell_type = random.choices([0, 1, 3], weights=[65, 20, 15])[0]
-                    row.append(cell_type)
-            self.grid.append(row)
-        
+        self.grid = [
+            [0, 1, 0, 0, 3],
+            [3, 3, 1, 0, 3],
+            [1, 0, 0, 1, 0],
+            [1, 3, 0, 0, 0],
+            [0, 0, 1, 3, 1]
+        ]
         # Tìm tập hợp các ô robot thực sự có thể đi tới được (Loang BFS)
         self.unreachable_dirt = set()
         self.reachable_tiles = self._get_reachable_tiles(self.start_robot_pos)
