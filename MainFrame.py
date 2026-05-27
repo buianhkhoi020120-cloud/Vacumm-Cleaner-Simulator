@@ -13,6 +13,7 @@ from algorithms.DFS_Vaccum_2 import DFS_Vaccum_2
 from algorithms.Vacuum_cleaner_MBA import ModelBased_Wrapper
 from algorithms.UCS_Vaccum import UCS_Vaccum
 from algorithms.Greedy_Vaccum import Greedy_Vaccum
+from algorithms.AStar_Vaccum import AStar_Vaccum
 class VacuumApp:
 
     def __init__(self, root):
@@ -129,6 +130,7 @@ class VacuumApp:
             "BFS_2",
             "UCS",
             "Greedy",
+            "A_Star",
             "Model_Based"
         ]
 
@@ -343,6 +345,7 @@ class VacuumApp:
             "BFS_2": BFS_Vaccum_2,
             "UCS": UCS_Vaccum,
             "Greedy": Greedy_Vaccum,
+            "A_Star": AStar_Vaccum,
             "Model_Based": ModelBased_Wrapper
         }
         self.vaccum_logic = None 
