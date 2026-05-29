@@ -15,6 +15,11 @@ from algorithms.UCS_Vaccum import UCS_Vaccum
 from algorithms.Greedy_Vaccum import Greedy_Vaccum
 from algorithms.AStar_Vaccum import AStar_Vaccum
 from algorithms.IDA_Vaccum import IDA_Vaccum
+from algorithms.HillClimbing_Vaccum import HillClimbing_Vaccum
+from algorithms.SteepestHillClimbing_Vaccum import SteepestHillClimbing_Vaccum
+from algorithms.StochasticHillClimbing_Vaccum import StochasticHillClimbing_Vaccum
+
+
 class VacuumApp:
 
     def __init__(self, root):
@@ -47,6 +52,7 @@ class VacuumApp:
     def setup_style(self):
         self.style = ttk.Style()
         self.style.theme_use("clam")
+        
         # Cấu hình nút RUN
         self.style.configure(
             "Run.TButton",
@@ -57,6 +63,7 @@ class VacuumApp:
             bordercolor="#1e1e2e"
         )
         self.style.map("Run.TButton", background=[('active', '#85c183'), ('pressed', '#6fa36d')])
+        
         # Cấu hình nút RESET
         self.style.configure(
             "Reset.TButton",
@@ -67,6 +74,7 @@ class VacuumApp:
             bordercolor="#1e1e2e"
         )
         self.style.map("Reset.TButton", background=[('active', '#e86b8b'), ('pressed', '#c84b6b')])
+        
         # Cấu hình Thanh tiến trình (Progressbar) màu xanh khi chạy
         self.style.configure(
             "Green.Horizontal.TProgressbar",
@@ -99,11 +107,13 @@ class VacuumApp:
             expand=True
         )
 
-        # LEFT PANEL
+        # ==================================================
+        # LEFT PANEL (WITH SCROLLBAR & MAP LEGEND)
+        # ==================================================
         self.left_frame = tk.Frame(
             main_frame,
             bg="#313244",
-            width=220
+            width=240
         )
         self.left_frame.pack(
             side="left",
@@ -111,35 +121,62 @@ class VacuumApp:
             padx=10,
             pady=10
         )
+        self.left_frame.pack_propagate(False)
+
         tk.Label(
             self.left_frame,
             text="Thuật toán",
             bg="#313244",
             fg="white",
             font=("Segoe UI", 15, "bold")
-        ).pack(pady=15)
+        ).pack(pady=(15, 5))
+
+        # Vùng chứa cuộn danh sách thuật toán
+        scroll_container = tk.Frame(self.left_frame, bg="#313244")
+        scroll_container.pack(fill="both", expand=True, padx=5, pady=5)
+
+        scrollbar = ttk.Scrollbar(scroll_container, orient="vertical")
+        scrollbar.pack(side="right", fill="y")
+
+        algo_canvas = tk.Canvas(
+            scroll_container,
+            bg="#313244",
+            highlightthickness=0,
+            yscrollcommand=scrollbar.set
+        )
+        algo_canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.config(command=algo_canvas.yview)
+
+        radio_list_frame = tk.Frame(algo_canvas, bg="#313244")
+        canvas_window = algo_canvas.create_window((0, 0), window=radio_list_frame, anchor="nw")
+
+        def on_frame_configure(event):
+            algo_canvas.configure(scrollregion=algo_canvas.bbox("all"))
+        radio_list_frame.bind("<Configure>", on_frame_configure)
+
+        def on_canvas_configure(event):
+            algo_canvas.itemconfig(canvas_window, width=event.width)
+        algo_canvas.bind("<Configure>", on_canvas_configure)
+
+        def _on_mousewheel(event):
+            algo_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        algo_canvas.bind_all("<MouseWheel>", _on_mousewheel)
 
         # ALGORITHM VARIABLE & TRACE
         self.algorithm_var = tk.StringVar()
         self.algorithm_var.set("Model_Based")
-        # Theo dõi thay đổi của từ khóa để đổi màu chữ RadioButton tương ứng
         self.algorithm_var.trace_add("write", self.update_radio_colors)
+
         algorithms = [
-            "DFS_1",
-            "DFS_2",
-            "BFS_1",
-            "BFS_2",
-            "UCS",
-            "Greedy",
-            "A_Star",
-            "IDA_Star",
+            "DFS_1", "DFS_2", "BFS_1", "BFS_2",
+            "UCS", "Greedy", "A_Star", "IDA_Star",
+            "Hill_Climbing", "Steepest_Hill", "Stochastic_Hill",
             "Model_Based"
         ]
 
-        # RADIO BUTTONS
         for algo in algorithms:
             rb = tk.Radiobutton(
-                self.left_frame,
+                radio_list_frame,
                 text=algo,
                 variable=self.algorithm_var,
                 value=algo,
@@ -150,42 +187,85 @@ class VacuumApp:
                 activeforeground="white",
                 selectcolor="#1e1e2e"
             )
-            rb.pack(
-                anchor="w",
-                padx=20,
-                pady=5
-            )
+            rb.pack(anchor="w", padx=15, pady=4)
             self.radio_buttons[algo] = rb
-        # Cập nhật màu chữ hiển thị ban đầu cho thuật toán mặc định
+            
         self.update_radio_colors()
+
+        # --------------------------------------------------
+        # THÊM MỚI: CHÚ THÍCH SƠ ĐỒ (LEGEND) - NẰM GIỮA
+        # --------------------------------------------------
+        legend_frame = tk.LabelFrame(
+            self.left_frame,
+            text=" Chú thích bản đồ ",
+            bg="#313244",
+            fg="#89b4fa",
+            font=("Segoe UI", 10, "bold"),
+            padx=10,
+            pady=8,
+            relief="groove",
+            bd=2
+        )
+        legend_frame.pack(side="bottom", fill="x", padx=15, pady=(5, 5))
+
+        # Khai báo cấu trúc các ký hiệu giải nghĩa
+        legend_items = [
+            ("🤖 Robot", "#f38ba8"),
+            ("🟤 Hạt rác", "#f9e2af"),
+            ("🧱 Vật cản / Tường", "#45475a"),
+            ("⬜ Đường trống / Sạch", "#cdd6f4")
+        ]
+
+        for text, color_code in legend_items:
+            item_row = tk.Frame(legend_frame, bg="#313244")
+            item_row.pack(anchor="w", pady=2)
+            
+            # Khối vuông hiển thị dải màu hex của Canvas
+            color_box = tk.Label(
+                item_row,
+                bg=color_code,
+                width=2,
+                height=1,
+                relief="solid",
+                bd=1
+            )
+            color_box.pack(side="left", padx=(0, 10))
+            
+            # Chữ mô tả ký hiệu
+            label_text = tk.Label(
+                item_row,
+                text=text,
+                bg="#313244",
+                fg="white",
+                font=("Segoe UI", 10)
+            )
+            label_text.pack(side="left")
+
+        # BUTTONS FRAME (NẰM DƯỚI CÙNG)
+        btn_frame = tk.Frame(self.left_frame, bg="#313244")
+        btn_frame.pack(side="bottom", fill="x", padx=10, pady=(5, 10))
 
         # RUN BUTTON
         self.run_btn = ttk.Button(
-            self.left_frame,
+            btn_frame,
             text="▶ RUN",
             command=self.run_algorithm,
             style="Run.TButton"
         )
-        self.run_btn.pack(
-            pady=20,
-            padx=15,
-            fill="x"
-        )
+        self.run_btn.pack(pady=5, fill="x")
 
         # RESET BUTTON
         self.reset_btn = ttk.Button(
-            self.left_frame,
+            btn_frame,
             text="⟳ RESET",
             command=self.reset_app,
             style="Reset.TButton"
         )
-        self.reset_btn.pack(
-            pady=10,
-            padx=15,
-            fill="x"
-        )
+        self.reset_btn.pack(pady=5, fill="x")
 
+        # ==================================================
         # CENTER PANEL
+        # ==================================================
         self.center_frame = tk.Frame(
             main_frame,
             bg="#1e1e2e"
@@ -214,7 +294,6 @@ class VacuumApp:
             fg="#a6e3a1",
             font=("Segoe UI", 12, "bold")
         )
-
         self.status_label.pack()
 
         # PROGRESS BAR
@@ -260,7 +339,6 @@ class VacuumApp:
             solution_container,
             orient="horizontal"
         )
-
         self.solution_scroll.pack(
             side="bottom",
             fill="x"
@@ -294,7 +372,9 @@ class VacuumApp:
             font=("Consolas", 11, "bold")
         )
 
+        # ==================================================
         # RIGHT PANEL
+        # ==================================================
         self.right_frame = tk.Frame(
             main_frame,
             bg="#313244",
@@ -328,7 +408,7 @@ class VacuumApp:
             pady=10
         )
 
-    # TỰ ĐỘNG ĐỔI MÀU TEXT THUẬT TOÁN ĐƯỢC CHỌN=
+    # TỰ ĐỘNG ĐỔI MÀU TEXT THUẬT TOÁN ĐƯỢC CHỌN
     def update_radio_colors(self, *args):
         selected = self.algorithm_var.get()
         for algo, rb in self.radio_buttons.items():
@@ -349,11 +429,13 @@ class VacuumApp:
             "Greedy": Greedy_Vaccum,
             "A_Star": AStar_Vaccum,
             "IDA_Star": IDA_Vaccum,
+            "Hill_Climbing": HillClimbing_Vaccum,
+            "Steepest_Hill": SteepestHillClimbing_Vaccum,
+            "Stochastic_Hill": StochasticHillClimbing_Vaccum,
             "Model_Based": ModelBased_Wrapper
         }
         self.vaccum_logic = None 
         if selected not in algorithms:
-            # Thông báo cho người dùng biết thuật toán này chưa được cài đặt
             self.log(f"❌ Lỗi: Thuật toán {selected} chưa được tích hợp!")
             self.status_label.config(text=f"Chưa có code cho {selected}")
             return
@@ -409,7 +491,6 @@ class VacuumApp:
 
     # LOG
     def log(self, message):
-
         self.log_text.insert(
             tk.END,
             message + "\n"
@@ -500,9 +581,9 @@ class VacuumApp:
         if self.vaccum_logic:
             self.draw_grid(self.vaccum_logic.start)
 
+
 # MAIN
 if __name__ == "__main__":
-
     root = tk.Tk()
     app = VacuumApp(root)
     root.mainloop()
