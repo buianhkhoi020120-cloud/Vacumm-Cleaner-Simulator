@@ -18,7 +18,7 @@ from algorithms.IDA_Vaccum import IDA_Vaccum
 from algorithms.HillClimbing_Vaccum import HillClimbing_Vaccum
 from algorithms.SteepestHillClimbing_Vaccum import SteepestHillClimbing_Vaccum
 from algorithms.StochasticHillClimbing_Vaccum import StochasticHillClimbing_Vaccum
-
+from algorithms.RandomRestartHillClimbing_Vaccum import RandomRestartHillClimbing_Vaccum
 
 class VacuumApp:
 
@@ -171,6 +171,7 @@ class VacuumApp:
             "DFS_1", "DFS_2", "BFS_1", "BFS_2",
             "UCS", "Greedy", "A_Star", "IDA_Star",
             "Hill_Climbing", "Steepest_Hill", "Stochastic_Hill",
+            "Random_Restart",
             "Model_Based"
         ]
 
@@ -432,6 +433,7 @@ class VacuumApp:
             "Hill_Climbing": HillClimbing_Vaccum,
             "Steepest_Hill": SteepestHillClimbing_Vaccum,
             "Stochastic_Hill": StochasticHillClimbing_Vaccum,
+            "Random_Restart": RandomRestartHillClimbing_Vaccum,
             "Model_Based": ModelBased_Wrapper
         }
         self.vaccum_logic = None 
