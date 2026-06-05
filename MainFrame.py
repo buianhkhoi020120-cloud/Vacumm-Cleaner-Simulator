@@ -19,6 +19,8 @@ from algorithms.HillClimbing_Vaccum import HillClimbing_Vaccum
 from algorithms.SteepestHillClimbing_Vaccum import SteepestHillClimbing_Vaccum
 from algorithms.StochasticHillClimbing_Vaccum import StochasticHillClimbing_Vaccum
 from algorithms.RandomRestartHillClimbing_Vaccum import RandomRestartHillClimbing_Vaccum
+from algorithms.LocalBeamSearch_Vaccum import LocalBeamSearch_Vaccum      
+from algorithms.SimulatedAnnealing_Vaccum import SimulatedAnnealing_Vaccum  
 
 class VacuumApp:
 
@@ -172,6 +174,8 @@ class VacuumApp:
             "UCS", "Greedy", "A_Star", "IDA_Star",
             "Hill_Climbing", "Steepest_Hill", "Stochastic_Hill",
             "Random_Restart",
+            "Local_Beam",      
+            "Simulated_Annealing",
             "Model_Based"
         ]
 
@@ -434,6 +438,8 @@ class VacuumApp:
             "Steepest_Hill": SteepestHillClimbing_Vaccum,
             "Stochastic_Hill": StochasticHillClimbing_Vaccum,
             "Random_Restart": RandomRestartHillClimbing_Vaccum,
+            "Local_Beam": LocalBeamSearch_Vaccum,            
+            "Simulated_Annealing": SimulatedAnnealing_Vaccum,
             "Model_Based": ModelBased_Wrapper
         }
         self.vaccum_logic = None 
