@@ -21,6 +21,8 @@ from algorithms.StochasticHillClimbing_Vaccum import StochasticHillClimbing_Vacc
 from algorithms.RandomRestartHillClimbing_Vaccum import RandomRestartHillClimbing_Vaccum
 from algorithms.LocalBeamSearch_Vaccum import LocalBeamSearch_Vaccum      
 from algorithms.SimulatedAnnealing_Vaccum import SimulatedAnnealing_Vaccum  
+from algorithms.BeliefState_BFS_Vaccum import BeliefState_BFS_Vaccum
+from algorithms.Partially_Observable_Vacuum import Partially_Observable_Vacuum
 
 class VacuumApp:
 
@@ -176,6 +178,8 @@ class VacuumApp:
             "Random_Restart",
             "Local_Beam",      
             "Simulated_Annealing",
+            "BeliefState_BFS",
+            "Partially_Observable",
             "Model_Based"
         ]
 
@@ -440,6 +444,8 @@ class VacuumApp:
             "Random_Restart": RandomRestartHillClimbing_Vaccum,
             "Local_Beam": LocalBeamSearch_Vaccum,            
             "Simulated_Annealing": SimulatedAnnealing_Vaccum,
+            "BeliefState_BFS": BeliefState_BFS_Vaccum,
+            "Partially_Observable": Partially_Observable_Vacuum,
             "Model_Based": ModelBased_Wrapper
         }
         self.vaccum_logic = None 
